@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { Modal, Button } from 'react-bootstrap';
 
 const TodoList = () => {
   const [task, setTask] = useState('');
   const [tasks, setTasks] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [currentTask, setCurrentTask] = useState(null);
 
   useEffect(() => {
     const storedTasks = localStorage.getItem('tasks');
@@ -50,9 +53,19 @@ const TodoList = () => {
     setTasks(updatedTasks);
   };
 
+  const handleTaskClick = (task) => {
+    setCurrentTask(task);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
   return (
     <div className="container mt-5">
       <h1 className="mb-4">Todo List</h1>
+      <small className='text-info'>(Cliquez sur le texte d'une tâche pour afficher la pop-up)</small> <br /> <br />
       <form onSubmit={handleFormSubmit} className="mb-4">
         <div className="input-group">
           <input type="text" className="form-control" value={task} onChange={handleInputChange} />
@@ -65,8 +78,10 @@ const TodoList = () => {
             key={task.id}
             className={`list-group-item ${task.completed ? 'list-group-item-success' : ''}`}
           >
-            <div className="d-flex justify-content-between align-items-center">
-              <span style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>
+            <div
+              className="d-flex justify-content-between align-items-center"
+            >
+              <span onClick={() => handleTaskClick(task)} style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>
                 {task.text}
               </span>
               <div>
@@ -87,6 +102,25 @@ const TodoList = () => {
           </li>
         ))}
       </ul>
+
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Task Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {currentTask && (
+            <div>
+              <h4>{currentTask.text}</h4>
+              <p>Completed: {currentTask.completed ? 'Yes' : 'No'}</p>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
